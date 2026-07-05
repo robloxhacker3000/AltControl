@@ -1,7 +1,7 @@
 -- ====================================================================
--- LUARMOR PREMIUM PROTECTED ENVIRONMENT WITH INTEGRATED SECURITY GATEWAY
+-- LUARMOR SECURE OAUTH & ROLE SENSITIVE VERIFICATION ENVIRONMENT
 -- ====================================================================
-print("🚀 luarmor protected engine initializing environment vectors...")
+print("🚀 luarmor dynamic role parsing engine initializing...")
 
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
@@ -14,7 +14,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 
 -- ====================================================================
--- CONFIGURATION & VOLATILE SYSTEM STATE
+-- SYSTEM SETTINGS
 -- ====================================================================
 local MAIN_ACCOUNT_NAME = "CreammmyKeyboardTes"
 local SERVER_URL = "https://underwear-candied-stool.ngrok-free.dev"
@@ -26,105 +26,58 @@ _G.ESPEnabled = true
 local Dancing = false
 local DanceConnection = nil
 
--- Clean up legacy workspace interface instances to optimize memory arrays
-if CoreGui:FindFirstChild("luarmor_PremiumHub") then
-    CoreGui["luarmor_PremiumHub"]:Destroy()
+-- Clean up older interface garbage instances to prevent runtime overlaps
+if CoreGui:FindFirstChild("luarmor_OAuthHub") then
+    CoreGui["luarmor_OAuthHub"]:Destroy()
 end
 
--- ====================================================================
--- MODERN SLICK USER INTERFACE ENVIRONMENT DESIGN
--- ====================================================================
+-- Create Screen Container Layout
 local mainGui = Instance.new("ScreenGui")
-mainGui.Name = "luarmor_PremiumHub"
+mainGui.Name = "luarmor_OAuthHub"
 mainGui.ResetOnSpawn = false
 mainGui.Parent = CoreGui
 
 -- --------------------------------------------------------------------
--- SUB-SYSTEM: STAGE 1 (LUARMOR AUTHENTICATION KEY CARD OVERLAY)
+-- BACKEND ASYNCHRONOUS ROLE EXTRACTION HANDSHAKE
 -- --------------------------------------------------------------------
-local keyCard = Instance.new("Frame")
-keyCard.Size = UDim2.new(0, 340, 0, 220)
-keyCard.Position = UDim2.new(0.5, -170, 0.4, -110)
-keyCard.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
-keyCard.BorderSizePixel = 0
-keyCard.Active = true
-keyCard.Draggable = true
-keyCard.Parent = mainGui
+local httpRequest = syn and syn.request or request
+if not httpRequest then
+    LocalPlayer:Kick("❌ Execution Interrupted: Missing HTTP Request capabilities.")
+    return
+end
 
-local keyCorners = Instance.new("UICorner")
-keyCorners.CornerRadius = UDim.new(0, 10)
-keyCorners.Parent = keyCard
+print("🔄 Syncing profile maps with Discord Server database parameters...")
 
-local keyAccent = Instance.new("Frame")
-keyAccent.Size = UDim2.new(1, 0, 0, 4)
-keyAccent.BackgroundColor3 = Color3.fromRGB(218, 165, 32) -- #DAA520 Gold
-keyAccent.BorderSizePixel = 0
-keyAccent.Parent = keyCard
+local success, response = pcall(function()
+    return httpRequest({
+        Url = SERVER_URL .. "/verify-user/" .. tostring(LocalPlayer.UserId),
+        Method = "GET"
+    })
+end)
 
-local keyAccentCorners = Instance.new("UICorner")
-keyAccentCorners.CornerRadius = UDim.new(0, 10)
-keyAccentCorners.Parent = keyAccent
+if not success or not response or response.StatusCode ~= 200 then
+    LocalPlayer:Kick("❌ Security Fault: Gateway unreachable. Check backend ngrok hosting tunnel maps.")
+    return
+end
 
-local keyTitle = Instance.new("TextLabel")
-keyTitle.Size = UDim2.new(1, -30, 0, 45)
-keyTitle.Position = UDim2.new(0, 15, 0, 4)
-keyTitle.BackgroundTransparency = 1
-keyTitle.Text = "luarmor authentication"
-keyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-keyTitle.TextXAlignment = Enum.TextXAlignment.Left
-keyTitle.Font = Enum.Font.GothamBold
-keyTitle.TextSize = 18
-keyTitle.Parent = keyCard
+local authData = HttpService:JSONDecode(response.Body)
 
-local keySubtext = Instance.new("TextLabel")
-keySubtext.Size = UDim2.new(1, -30, 0, 20)
-keySubtext.Position = UDim2.new(0, 15, 0, 36)
-keySubtext.BackgroundTransparency = 1
-keySubtext.Text = "Enter a valid license key token to verify credentials."
-keySubtext.TextColor3 = Color3.fromRGB(140, 140, 145)
-keySubtext.TextXAlignment = Enum.TextXAlignment.Left
-keySubtext.Font = Enum.Font.GothamSemibold
-keySubtext.TextSize = 12
-keySubtext.Parent = keyCard
+if not authData.verified then
+    LocalPlayer:Kick("❌ Luarmor Lockout: You must link your Roblox account and join our official Discord server to execute this project hub!")
+    return
+end
 
--- Input Text Box Frame Container
-local inputFrame = Instance.new("Frame")
-inputFrame.Size = UDim2.new(1, -30, 0, 40)
-inputFrame.Position = UDim2.new(0, 15, 0, 75)
-inputFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
-inputFrame.BorderSizePixel = 0
-inputFrame.Parent = keyCard
+-- Assign system badges dynamically based on structural database roles
+local userTitle = "🛡️ Whitelisted Client"
+local badgeColor = Color3.fromRGB(46, 204, 113) -- Vibrant green layout matching
 
-local inputCorner = Instance.new("UICorner")
-inputCorner.CornerRadius = UDim.new(0, 6)
-inputCorner.Parent = inputFrame
-
-local keyTextBox = Instance.new("TextBox")
-keyTextBox.Size = UDim2.new(1, -20, 1, 0)
-keyTextBox.Position = UDim2.new(0, 10, 0, 0)
-keyTextBox.BackgroundTransparency = 1
-keyTextBox.Text = ""
-keyTextBox.PlaceholderText = "LUARMOR-XXXXXX-XXXXXX-XXXXXX" -- Updated format template
-keyTextBox.PlaceholderColor3 = Color3.fromRGB(80, 80, 85)
-keyTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-keyTextBox.Font = Enum.Font.Code
-keyTextBox.TextSize = 12
-keyTextBox.Parent = inputFrame
-
--- Validation Feedback Status Text Frame
-local validationFeedback = Instance.new("TextLabel")
-validationFeedback.Size = UDim2.new(1, -30, 0, 20)
-validationFeedback.Position = UDim2.new(0, 15, 0, 125)
-validationFeedback.BackgroundTransparency = 1
-validationFeedback.Text = "Status: Awaiting system runtime authorization input..."
-validationFeedback.TextColor3 = Color3.fromRGB(120, 120, 125)
-validationFeedback.TextXAlignment = Enum.TextXAlignment.Left
-validationFeedback.Font = Enum.Font.GothamMedium
-validationFeedback.TextSize = 11
-validationFeedback.Parent = keyCard
+if authData.isAdmin or authData.isOwner then
+    userTitle = "👑 Owner & Admin Team"
+    badgeColor = Color3.fromRGB(218, 165, 32) -- Pure Goldenrod accent
+end
 
 -- --------------------------------------------------------------------
--- SUB-SYSTEM: STAGE 2 (LUARMOR DASHBOARD CONTROL PANEL CORE)
+-- MAIN DASHBOARD CONTROL PANEL (FLUID UI IMPLEMENTATION)
 -- --------------------------------------------------------------------
 local mainCard = Instance.new("Frame")
 mainCard.Size = UDim2.new(0, 360, 0, 300)
@@ -133,28 +86,27 @@ mainCard.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 mainCard.BorderSizePixel = 0
 mainCard.Active = true
 mainCard.Draggable = true
-mainCard.Visible = false 
 mainCard.Parent = mainGui
 
 local cardCorners = Instance.new("UICorner")
-cardCorners.CornerRadius = UDim.new(0, 10)
+cardCorners.CornerRadius = UDim.new(0, 12)
 cardCorners.Parent = mainCard
 
 local topAccent = Instance.new("Frame")
 topAccent.Size = UDim2.new(1, 0, 0, 4)
-topAccent.BackgroundColor3 = Color3.fromRGB(218, 165, 32)
+topAccent.BackgroundColor3 = badgeColor
 topAccent.BorderSizePixel = 0
 topAccent.Parent = mainCard
 
 local accentCorners = Instance.new("UICorner")
-accentCorners.CornerRadius = UDim.new(0, 10)
+accentCorners.CornerRadius = UDim.new(0, 12)
 accentCorners.Parent = topAccent
 
 local titleHeader = Instance.new("TextLabel")
 titleHeader.Size = UDim2.new(1, -30, 0, 45)
 titleHeader.Position = UDim2.new(0, 15, 0, 4)
 titleHeader.BackgroundTransparency = 1
-titleHeader.Text = "luarmor script hub"
+titleHeader.Text = "luarmor hub"
 titleHeader.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleHeader.TextXAlignment = Enum.TextXAlignment.Left
 titleHeader.Font = Enum.Font.GothamBold
@@ -165,8 +117,8 @@ local statusSubtext = Instance.new("TextLabel")
 statusSubtext.Size = UDim2.new(1, -30, 0, 20)
 statusSubtext.Position = UDim2.new(0, 15, 0, 38)
 statusSubtext.BackgroundTransparency = 1
-statusSubtext.Text = "Luarmor Identity Matrix: " .. (LocalPlayer.Name == MAIN_ACCOUNT_NAME and "👑 MASTER SHELL ADMIN" or "🤖 PROTECTED ALT INTERFACE")
-statusSubtext.TextColor3 = LocalPlayer.Name == MAIN_ACCOUNT_NAME and Color3.fromRGB(218, 165, 32) or Color3.fromRGB(46, 204, 113)
+statusSubtext.Text = "Verified Rank: " .. userTitle
+statusSubtext.TextColor3 = badgeColor
 statusSubtext.TextXAlignment = Enum.TextXAlignment.Left
 statusSubtext.Font = Enum.Font.GothamSemibold
 statusSubtext.TextSize = 12
@@ -179,7 +131,7 @@ divider.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
 divider.BorderSizePixel = 0
 divider.Parent = mainCard
 
--- Premium UI Interaction Button Factory Function
+-- Premium UI Button Factory Function
 local function CreateStyledButton(text, position, parent, callback)
     local btnFrame = Instance.new("Frame")
     btnFrame.Size = UDim2.new(0, 160, 0, 38)
@@ -212,14 +164,11 @@ local function CreateStyledButton(text, position, parent, callback)
     return textBtn
 end
 
--- --------------------------------------------------------------------
--- INTERACTION FACTORY SETUP MAPPINGS
--- --------------------------------------------------------------------
 CreateStyledButton("⚙️ Reset Security HWID", UDim2.new(0, 15, 0, 85), mainCard, function()
-    print("🔄 Luarmor local hardware reference maps flushed successfully.")
+    print("🔄 Hardware vector nodes synchronized clean.")
 end)
 
-CreateStyledButton("📋 Copy Luarmor Boot", UDim2.new(0, 185, 0, 85), mainCard, function()
+CreateStyledButton("📋 Copy Session Link", UDim2.new(0, 185, 0, 85), mainCard, function()
     setclipboard("loadstring(game:HttpGet('https://raw.githubusercontent.com/Creammmy/AltControl/main/script.lua'))()")
 end)
 
@@ -230,7 +179,7 @@ espToggle.MouseButton1Click:Connect(function()
     espToggle.TextColor3 = _G.ESPEnabled and Color3.fromRGB(245, 245, 250) or Color3.fromRGB(231, 76, 60)
 end)
 
-CreateStyledButton("🛑 Terminate Luarmor", UDim2.new(0, 185, 0, 135), mainCard, function()
+CreateStyledButton("🛑 Close Client Panel", UDim2.new(0, 185, 0, 135), mainCard, function()
     mainGui:Destroy()
 end)
 
@@ -258,64 +207,8 @@ consoleText.TextSize = 11
 consoleText.LineHeight = 1.35
 consoleText.Parent = consoleBox
 
--- --------------------------------------------------------------------
--- REGISTRATION DEPLOYMENT: ASYNCHRONOUS VERIFICATION LINK
--- --------------------------------------------------------------------
-local function AnimateAndDisplayDashboard()
-    TweenService:Create(keyCard, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -170, -1, 0)}):Play()
-    task.wait(0.4)
-    keyCard.Visible = false
-    mainCard.Visible = true
-    mainCard.Position = UDim2.new(0.5, -180, -1, 0)
-    TweenService:Create(mainCard, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -180, 0.4, -150)}):Play()
-end
-
-CreateStyledButton("🔑 Verify License", UDim2.new(0, 90, 0, 155), keyCard, function()
-    local inputtedString = keyTextBox.Text:gsub("%s+", "")
-    if #inputtedString == 0 then
-        validationFeedback.Text = "❌ Luarmor Error: Key entry field space cannot be null."
-        validationFeedback.TextColor3 = Color3.fromRGB(231, 76, 60)
-        return
-    end
-
-    validationFeedback.Text = "🔄 Handshaking securely with active Luarmor database nodes..."
-    validationFeedback.TextColor3 = Color3.fromRGB(218, 165, 32)
-
-    local httpRequest = syn and syn.request or request
-    if not httpRequest then
-        validationFeedback.Text = "❌ Fatal Exception: Client architecture lacking request links."
-        validationFeedback.TextColor3 = Color3.fromRGB(231, 76, 60)
-        return
-    end
-
-    task.spawn(function()
-        local success, response = pcall(function()
-            return httpRequest({
-                Url = SERVER_URL .. "/checkkey/" .. HttpService:UrlEncode(inputtedString),
-                Method = "GET"
-            })
-        end)
-
-        if success and response and response.StatusCode == 200 then
-            local data = HttpService:JSONDecode(response.Body)
-            if data.valid then
-                validationFeedback.Text = "🟢 Success! Luarmor session initialized. Loading dashboard..."
-                validationFeedback.TextColor3 = Color3.fromRGB(46, 204, 113)
-                task.wait(0.8)
-                AnimateAndDisplayDashboard()
-            else
-                validationFeedback.Text = "❌ Luarmor Rejection: " .. (data.reason or "Invalid key balance.")
-                validationFeedback.TextColor3 = Color3.fromRGB(231, 76, 60)
-            end
-        else
-            validationFeedback.Text = "❌ Firewall Error: Verification master servers unresponsive."
-            validationFeedback.TextColor3 = Color3.fromRGB(231, 76, 60)
-        end
-    end)
-end)
-
 -- ====================================================================
--- RUNTIME EXPLOIT SYSTEM CHANNELS
+-- COMPONENT HOOK LOOPS (WALKSPEED, JUMPPOWER, ESP, & CHAT)
 -- ====================================================================
 task.spawn(function()
     while true do
@@ -339,7 +232,7 @@ local function CreateESP(player)
     BoxOutline.Name = "ESP_Box"
     BoxOutline.AlwaysOnTop = true
     BoxOutline.ZIndex = 5
-    BoxOutline.Color3 = Color3.fromRGB(218, 165, 32)
+    BoxOutline.Color3 = badgeColor
     BoxOutline.Transparency = 0.4
     BoxOutline.Size = Vector3.new(4, 5.5, 1)
 
@@ -384,11 +277,7 @@ end
 for _, player in ipairs(Players:GetPlayers()) do CreateESP(player) end
 Players.PlayerAdded:Connect(CreateESP)
 
--- ====================================================================
--- MASTER SECURED CHAT DECODING CHANNELS
--- ====================================================================
 local function HandleIncomingChat(msg, speaker)
-    if not mainCard.Visible then return end
     if LocalPlayer.Name == MAIN_ACCOUNT_NAME then return end
     if speaker.Name ~= MAIN_ACCOUNT_NAME then return end
     
