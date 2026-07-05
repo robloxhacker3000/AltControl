@@ -17,7 +17,7 @@ local LocalPlayer = Players.LocalPlayer
 -- CONFIGURATION & VOLATILE SYSTEM STATE
 -- ====================================================================
 local MAIN_ACCOUNT_NAME = "CreammmyKeyboardTes"
-local SERVER_URL = "https://YOUR_NEW_NGROK_LINK_HERE.ngrok-free.app"
+local SERVER_URL = "https://underwear-candied-stool.ngrok-free.dev"
 
 _G.WalkSpeedValue = 16
 _G.JumpPowerValue = 50
