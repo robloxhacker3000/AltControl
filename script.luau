@@ -16,7 +16,7 @@ local LocalPlayer = Players.LocalPlayer
 -- ====================================================================
 -- CONFIGURATION SETTINGS
 -- ====================================================================
-local MAIN_ACCOUNT_NAME = "CreammmyKeyboardTes" -- Master configuration
+local MAIN_ACCOUNT_NAME = "creammmykeyboardtes" -- Master configuration
 
 _G.WalkSpeedValue = 16
 _G.JumpPowerValue = 50
