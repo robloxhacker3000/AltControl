@@ -16,7 +16,7 @@ local LocalPlayer = Players.LocalPlayer
 -- ====================================================================
 -- CONFIGURATION SETTINGS
 -- ====================================================================
-local MAIN_ACCOUNT_NAME = "creammmykeyboardtes" -- Master configuration
+local MAIN_ACCOUNT_NAME = "CreammmyKeyboardTes" -- Master configuration
 
 _G.WalkSpeedValue = 16
 _G.JumpPowerValue = 50
@@ -25,7 +25,7 @@ _G.ESPEnabled = true
 local Dancing = false
 local DanceConnection = nil
 
--- Clean up older interface garbage instances to prevent runtime memory overlaps
+-- Clean up older interface instances to prevent overlaps
 if CoreGui:FindFirstChild("mspaint_PremiumHub") then
     CoreGui["mspaint_PremiumHub"]:Destroy()
 end
@@ -56,7 +56,7 @@ cardCorners.Parent = mainCard
 -- Top Highlight Header Bar Border
 local topAccent = Instance.new("Frame")
 topAccent.Size = UDim2.new(1, 0, 0, 4)
-topAccent.BackgroundColor3 = Color3.fromRGB(218, 165, 32) -- #DAA520 Gold
+topAccent.BackgroundColor3 = Color3.fromRGB(218, 165, 32) -- Gold
 topAccent.BorderSizePixel = 0
 topAccent.Parent = mainCard
 
@@ -118,7 +118,6 @@ local function CreateStyledButton(text, position, parent, callback)
     textBtn.TextSize = 13
     textBtn.Parent = btnFrame
 
-    -- Elegant UI Hover Animations
     textBtn.MouseEnter:Connect(function()
         TweenService:Create(btnFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundColor3 = Color3.fromRGB(35, 35, 42)}):Play()
     end)
@@ -127,7 +126,7 @@ local function CreateStyledButton(text, position, parent, callback)
     end)
 
     textBtn.MouseButton1Click:Connect(callback)
-    return textBtn, btnFrame
+    return textBtn
 end
 
 -- Render Action Buttons
@@ -136,10 +135,10 @@ CreateStyledButton("⚙️ Reset Local HWID", UDim2.new(0, 15, 0, 85), mainCard,
 end)
 
 CreateStyledButton("📋 Copy Loadstring", UDim2.new(0, 185, 0, 85), mainCard, function()
-    setclipboard("loadstring(game:HttpGet('https://raw.githubusercontent.com/robloxhacker3000/AltControl/refs/heads/main/script.luau'))()")
+    setclipboard("loadstring(game:HttpGet('https://raw.githubusercontent.com/Creammmy/AltControl/main/script.lua'))()")
 end)
 
-local espToggle, espFrame = CreateStyledButton("📊 Toggle ESP: ON", UDim2.new(0, 15, 0, 135), mainCard, function() end)
+local espToggle = CreateStyledButton("📊 Toggle ESP: ON", UDim2.new(0, 15, 0, 135), mainCard, function() end)
 espToggle.MouseButton1Click:Connect(function()
     _G.ESPEnabled = not _G.ESPEnabled
     espToggle.Text = "📊 Toggle ESP: " .. (_G.ESPEnabled and "ON" or "OFF")
@@ -255,7 +254,7 @@ Players.PlayerAdded:Connect(CreateESP)
 -- 4. MASTER SECURED CHAT DECODING CHANNELS
 -- ====================================================================
 local function HandleIncomingChat(msg, speaker)
-    -- CRITICAL PROTECTION: If this execution environment is running on the main account, block!
+    -- CRITICAL PROTECTION: If running on the main account, block!
     if LocalPlayer.Name == MAIN_ACCOUNT_NAME then return end
     
     -- Verify talker identity is the validated host source
@@ -312,4 +311,49 @@ local function HandleIncomingChat(msg, speaker)
     end
 
     if command == ";undance" then
-        if Dancing
+        if Dancing then
+            Dancing = false
+            if DanceConnection then
+                DanceConnection:Disconnect()
+                DanceConnection = nil
+            end
+        end
+    end
+
+    if command == ";say" and #args > 1 then
+        table.remove(args, 1)
+        local repeatMessage = table.concat(args, " ")
+        
+        if TextChatService and TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+            local textChannels = TextChatService:FindFirstChild("TextChannels")
+            local targetChannel = textChannels and (textChannels:FindFirstChild("RBXGeneral") or textChannels:FindFirstChild("RBXSystem"))
+            if targetChannel then
+                targetChannel:SendAsync(repeatMessage)
+            end
+        end
+        
+        local legacyChat = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
+        if legacyChat and legacyChat:FindFirstChild("SayMessageRequest") then
+            legacyChat.SayMessageRequest:FireServer(repeatMessage, "All")
+        end
+    end
+end
+
+-- Connect hybrid event hooks securely
+if TextChatService and TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+    TextChatService.MessageReceived:Connect(function(textMessage)
+        if textMessage.TextSource then
+            local speaker = Players:GetPlayerByUserId(textMessage.TextSource.UserId)
+            if speaker then
+                HandleIncomingChat(textMessage.Text, speaker)
+            end
+        end
+    end)
+else
+    for _, player in ipairs(Players:GetPlayers()) do
+        player.Chatted:Connect(function(msg) HandleIncomingChat(msg, player) end)
+    end
+    Players.PlayerAdded:Connect(function(player)
+        player.Chatted:Connect(function(msg) HandleIncomingChat(msg, player) end)
+    end)
+end
