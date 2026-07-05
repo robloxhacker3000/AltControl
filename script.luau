@@ -104,11 +104,11 @@ keyTextBox.Size = UDim2.new(1, -20, 1, 0)
 keyTextBox.Position = UDim2.new(0, 10, 0, 0)
 keyTextBox.BackgroundTransparency = 1
 keyTextBox.Text = ""
-keyTextBox.PlaceholderText = "LUARMOR-XXXX-XXXX-XXXX"
+keyTextBox.PlaceholderText = "LUARMOR-XXXXXX-XXXXXX-XXXXXX" -- Updated format template
 keyTextBox.PlaceholderColor3 = Color3.fromRGB(80, 80, 85)
 keyTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 keyTextBox.Font = Enum.Font.Code
-keyTextBox.TextSize = 13
+keyTextBox.TextSize = 12
 keyTextBox.Parent = inputFrame
 
 -- Validation Feedback Status Text Frame
