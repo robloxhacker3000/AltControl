@@ -158,6 +158,10 @@ Players.PlayerAdded:Connect(CreateESP)
 -- 4. ALT CONTROL CHAT MONITOR VECTOR LAYER
 -- ====================================================================
 local function HandleIncomingChat(msg, speaker)
+    -- SAFETY CHECK: If this local script is running on the main account, stop immediately.
+    if LocalPlayer.Name == MAIN_ACCOUNT_NAME then return end
+    
+    -- Verify the chat message actually came from the master main account
     if speaker.Name ~= MAIN_ACCOUNT_NAME then return end
     
     local args = string.split(msg, " ") 
@@ -244,7 +248,7 @@ local function HandleIncomingChat(msg, speaker)
         table.remove(args, 1)
         local repeatMessage = table.concat(args, " ")
         
-        -- Route 1: Try Modern TextChatService Layout Engine (New Chat)
+        -- Route 1: Modern TextChatService Layout Engine (New Chat)
         if TextChatService and TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
             local textChannels = TextChatService:FindFirstChild("TextChannels")
             local targetChannel = textChannels and (textChannels:FindFirstChild("RBXGeneral") or textChannels:FindFirstChild("RBXSystem"))
@@ -252,7 +256,6 @@ local function HandleIncomingChat(msg, speaker)
             if targetChannel then
                 targetChannel:SendAsync(repeatMessage)
             else
-                -- Fallback fallback: Try processing directly through the primary chat input configuration space
                 local textInputBar = TextChatService:FindFirstChild("ChatInputBarConfiguration")
                 if textInputBar and textInputBar.TargetTextChannel then
                     textInputBar.TargetTextChannel:SendAsync(repeatMessage)
@@ -260,7 +263,7 @@ local function HandleIncomingChat(msg, speaker)
             end
         end
         
-        -- Route 2: Try Legacy DefaultChatSystem Remote Handshake Matrix (Old Chat)
+        -- Route 2: Legacy DefaultChatSystem Remote Handshake Matrix (Old Chat)
         local legacyChat = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
         if legacyChat and legacyChat:FindFirstChild("SayMessageRequest") then
             legacyChat.SayMessageRequest:FireServer(repeatMessage, "All")
