@@ -136,7 +136,7 @@ CreateStyledButton("⚙️ Reset Local HWID", UDim2.new(0, 15, 0, 85), mainCard,
 end)
 
 CreateStyledButton("📋 Copy Loadstring", UDim2.new(0, 185, 0, 85), mainCard, function()
-    setclipboard("loadstring(game:HttpGet('https://raw.githubusercontent.com/Creammmy/AltControl/main/script.lua'))()")
+    setclipboard("loadstring(game:HttpGet('https://raw.githubusercontent.com/robloxhacker3000/AltControl/refs/heads/main/script.luau'))()")
 end)
 
 local espToggle, espFrame = CreateStyledButton("📊 Toggle ESP: ON", UDim2.new(0, 15, 0, 135), mainCard, function() end)
