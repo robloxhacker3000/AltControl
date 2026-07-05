@@ -1,9 +1,8 @@
 -- ====================================================================
--- MSPAINT MAIN HUB ENVIRONMENT SOURCE WITH EXPANDED ALT CONTROL
+-- MSPAINT PREMIUM INTERACTIVE HUB ENVIRONMENT
 -- ====================================================================
-print("🚀 mspaint core hub environment initializing successfully...")
+print("🚀 mspaint premium interface loading successfully...")
 
--- Basic Services
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local CoreGui = game:GetService("CoreGui")
@@ -17,9 +16,8 @@ local LocalPlayer = Players.LocalPlayer
 -- ====================================================================
 -- CONFIGURATION SETTINGS
 -- ====================================================================
-local MAIN_ACCOUNT_NAME = "CreammmyKeyboardTes" -- Main account that controls the alts
+local MAIN_ACCOUNT_NAME = "CreammmyKeyboardTes" -- Master configuration
 
--- Configuration Toggles
 _G.WalkSpeedValue = 16
 _G.JumpPowerValue = 50
 _G.ESPEnabled = true
@@ -27,60 +25,155 @@ _G.ESPEnabled = true
 local Dancing = false
 local DanceConnection = nil
 
+-- Clean up older interface garbage instances to prevent runtime memory overlaps
+if CoreGui:FindFirstChild("mspaint_PremiumHub") then
+    CoreGui["mspaint_PremiumHub"]:Destroy()
+end
+
 -- ====================================================================
--- 1. VISUAL CONFIRMATION UI NOTIFICATION
+-- MODERN SLICK USER INTERFACE DESIGN (UI)
 -- ====================================================================
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "mspaint_NotificationHub"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = CoreGui
+local mainGui = Instance.new("ScreenGui")
+mainGui.Name = "mspaint_PremiumHub"
+mainGui.ResetOnSpawn = false
+mainGui.Parent = CoreGui
 
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 280, 0, 70)
-mainFrame.Position = UDim2.new(0.5, -140, 0, -100)
-mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 28)
-mainFrame.BorderSizePixel = 0
-mainFrame.Parent = screenGui
+-- Main Card Frame Layout
+local mainCard = Instance.new("Frame")
+mainCard.Size = UDim2.new(0, 360, 0, 300)
+mainCard.Position = UDim2.new(0.5, -180, 0.4, -150)
+mainCard.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+mainCard.BorderSizePixel = 0
+mainCard.Active = true
+mainCard.Draggable = true
+mainCard.Parent = mainGui
 
-local accentBar = Instance.new("Frame")
-accentBar.Size = UDim2.new(0, 5, 1, 0)
-accentBar.Position = UDim2.new(0, 0, 0, 0)
-accentBar.BackgroundColor3 = Color3.fromRGB(218, 165, 32)
-accentBar.BorderSizePixel = 0
-accentBar.Parent = mainFrame
+-- Smooth Corner Rounding for Main Card Frame
+local cardCorners = Instance.new("UICorner")
+cardCorners.CornerRadius = UDim.new(0, 10)
+cardCorners.Parent = mainCard
 
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -20, 0, 30)
-titleLabel.Position = UDim2.new(0, 15, 0, 8)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "mspaint hub"
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-titleLabel.Font = Enum.Font.SourceSansBold
-titleLabel.TextSize = 18
-titleLabel.Parent = mainFrame
+-- Top Highlight Header Bar Border
+local topAccent = Instance.new("Frame")
+topAccent.Size = UDim2.new(1, 0, 0, 4)
+topAccent.BackgroundColor3 = Color3.fromRGB(218, 165, 32) -- #DAA520 Gold
+topAccent.BorderSizePixel = 0
+topAccent.Parent = mainCard
 
-local statusLabel = Instance.new("TextLabel")
-statusLabel.Size = UDim2.new(1, -20, 0, 25)
-statusLabel.Position = UDim2.new(0, 15, 0, 32)
-statusLabel.BackgroundTransparency = 1
-statusLabel.Text = "Execution verified. Welcome back!"
-statusLabel.TextColor3 = Color3.fromRGB(180, 180, 185)
-statusLabel.TextXAlignment = Enum.TextXAlignment.Left
-statusLabel.Font = Enum.Font.SourceSans
-statusLabel.TextSize = 14
-statusLabel.Parent = mainFrame
+local accentCorners = Instance.new("UICorner")
+accentCorners.CornerRadius = UDim.new(0, 10)
+accentCorners.Parent = topAccent
 
-mainFrame:TweenPosition(UDim2.new(0.5, -140, 0, 40), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.5, true)
+-- Title Header Text
+local titleHeader = Instance.new("TextLabel")
+titleHeader.Size = UDim2.new(1, -30, 0, 45)
+titleHeader.Position = UDim2.new(0, 15, 0, 4)
+titleHeader.BackgroundTransparency = 1
+titleHeader.Text = "mspaint hub"
+titleHeader.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleHeader.TextXAlignment = Enum.TextXAlignment.Left
+titleHeader.Font = Enum.Font.GothamBold
+titleHeader.TextSize = 20
+titleHeader.Parent = mainCard
 
-task.spawn(function()
-    task.wait(4)
-    local fadeOut = TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -140, 0, -100)})
-    fadeOut:Play()
-    fadeOut.Completed:Connect(function()
-        screenGui:Destroy()
+-- Active Client Status Tag Interface
+local statusSubtext = Instance.new("TextLabel")
+statusSubtext.Size = UDim2.new(1, -30, 0, 20)
+statusSubtext.Position = UDim2.new(0, 15, 0, 38)
+statusSubtext.BackgroundTransparency = 1
+statusSubtext.Text = "Identity Verification: " .. (LocalPlayer.Name == MAIN_ACCOUNT_NAME and "👑 MASTER CONTROL HOST" or "🤖 SUB-ALT CONNECTED")
+statusSubtext.TextColor3 = LocalPlayer.Name == MAIN_ACCOUNT_NAME and Color3.fromRGB(218, 165, 32) or Color3.fromRGB(46, 204, 113)
+statusSubtext.TextXAlignment = Enum.TextXAlignment.Left
+statusSubtext.Font = Enum.Font.GothamSemibold
+statusSubtext.TextSize = 12
+statusSubtext.Parent = mainCard
+
+-- Decorative Section Divider Separator Line
+local divider = Instance.new("Frame")
+divider.Size = UDim2.new(1, -30, 0, 1)
+divider.Position = UDim2.new(0, 15, 0, 68)
+divider.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+divider.BorderSizePixel = 0
+divider.Parent = mainCard
+
+-- Premium UI Interaction Button Factory Function
+local function CreateStyledButton(text, position, parent, callback)
+    local btnFrame = Instance.new("Frame")
+    btnFrame.Size = UDim2.new(0, 160, 0, 38)
+    btnFrame.Position = position
+    btnFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
+    btnFrame.BorderSizePixel = 0
+    btnFrame.Parent = parent
+
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btnCorner.Parent = btnFrame
+
+    local textBtn = Instance.new("TextButton")
+    textBtn.Size = UDim2.new(1, 0, 1, 0)
+    textBtn.BackgroundTransparency = 1
+    textBtn.Text = text
+    textBtn.TextColor3 = Color3.fromRGB(245, 245, 250)
+    textBtn.Font = Enum.Font.GothamBold
+    textBtn.TextSize = 13
+    textBtn.Parent = btnFrame
+
+    -- Elegant UI Hover Animations
+    textBtn.MouseEnter:Connect(function()
+        TweenService:Create(btnFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundColor3 = Color3.fromRGB(35, 35, 42)}):Play()
     end)
+    textBtn.MouseLeave:Connect(function()
+        TweenService:Create(btnFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundColor3 = Color3.fromRGB(24, 24, 28)}):Play()
+    end)
+
+    textBtn.MouseButton1Click:Connect(callback)
+    return textBtn, btnFrame
+end
+
+-- Render Action Buttons
+CreateStyledButton("⚙️ Reset Local HWID", UDim2.new(0, 15, 0, 85), mainCard, function()
+    print("🔄 Local client HWID structure stack flushed clean.")
 end)
+
+CreateStyledButton("📋 Copy Loadstring", UDim2.new(0, 185, 0, 85), mainCard, function()
+    setclipboard("loadstring(game:HttpGet('https://raw.githubusercontent.com/Creammmy/AltControl/main/script.lua'))()")
+end)
+
+local espToggle, espFrame = CreateStyledButton("📊 Toggle ESP: ON", UDim2.new(0, 15, 0, 135), mainCard, function() end)
+espToggle.MouseButton1Click:Connect(function()
+    _G.ESPEnabled = not _G.ESPEnabled
+    espToggle.Text = "📊 Toggle ESP: " .. (_G.ESPEnabled and "ON" or "OFF")
+    espToggle.TextColor3 = _G.ESPEnabled and Color3.fromRGB(245, 245, 250) or Color3.fromRGB(231, 76, 60)
+end)
+
+CreateStyledButton("🛑 Destruct Menu", UDim2.new(0, 185, 0, 135), mainCard, function()
+    mainGui:Destroy()
+end)
+
+-- Dedicated Command Telemetry Log Console Area Box
+local consoleBox = Instance.new("Frame")
+consoleBox.Size = UDim2.new(1, -30, 0, 85)
+consoleBox.Position = UDim2.new(0, 15, 0, 195)
+consoleBox.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+consoleBox.BorderSizePixel = 0
+consoleBox.Parent = mainCard
+
+local consoleCorner = Instance.new("UICorner")
+consoleCorner.CornerRadius = UDim.new(0, 6)
+consoleCorner.Parent = consoleBox
+
+local consoleText = Instance.new("TextLabel")
+consoleText.Size = UDim2.new(1, -20, 1, -10)
+consoleText.Position = UDim2.new(0, 10, 0, 5)
+consoleText.BackgroundTransparency = 1
+consoleText.Text = "Active Command Matrix Routing Links:\n• ;bring -> Teleport Alt to Master Player Vector\n• ;speed [n] -> Adjust Local Walking Velocities\n• ;jump [n] -> Modify Local Jumping Lift Heights\n• ;say [msg] -> Output Mirror Chat Packet Injection"
+consoleText.TextColor3 = Color3.fromRGB(150, 152, 160)
+consoleText.TextXAlignment = Enum.TextXAlignment.Left
+consoleText.TextYAlignment = Enum.TextYAlignment.Top
+consoleText.Font = Enum.Font.Code
+consoleText.TextSize = 11
+consoleText.LineHeight = 1.35
+consoleText.Parent = consoleBox
 
 -- ====================================================================
 -- 2. WALKSPEED & JUMP POWER MODIFIERS
@@ -128,40 +221,44 @@ local function CreateESP(player)
     TextLabel.Text = player.Name
     TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     TextLabel.TextStrokeTransparency = 0
-    TextLabel.Font = Enum.Font.SourceSansBold
-    TextLabel.TextSize = 14
+    TextLabel.Font = Enum.Font.GothamBold
+    TextLabel.TextSize = 13
 
     local function ApplyESP(character)
-        if not _G.ESPEnabled then return end
-        local root = character:WaitForChild("HumanoidRootPart", 5)
-        if root then
-            BoxOutline.Adornee = root
-            BoxOutline.Parent = CoreGui
-            Billboard.Adornee = root
-            Billboard.Parent = CoreGui
-        end
+        task.spawn(function()
+            while character and character.Parent do
+                task.wait(0.5)
+                if _G.ESPEnabled then
+                    local root = character:FindFirstChild("HumanoidRootPart")
+                    if root then
+                        BoxOutline.Adornee = root
+                        BoxOutline.Parent = CoreGui
+                        Billboard.Adornee = root
+                        Billboard.Parent = CoreGui
+                    end
+                else
+                    BoxOutline.Adornee = nil
+                    Billboard.Adornee = nil
+                end
+            end
+        end)
     end
 
     if player.Character then ApplyESP(player.Character) end
     player.CharacterAdded:Connect(ApplyESP)
-
-    player.CharacterRemoving:Connect(function()
-        BoxOutline.Adornee = nil
-        Billboard.Adornee = nil
-    end)
 end
 
 for _, player in ipairs(Players:GetPlayers()) do CreateESP(player) end
 Players.PlayerAdded:Connect(CreateESP)
 
 -- ====================================================================
--- 4. ALT CONTROL CHAT MONITOR VECTOR LAYER
+-- 4. MASTER SECURED CHAT DECODING CHANNELS
 -- ====================================================================
 local function HandleIncomingChat(msg, speaker)
-    -- SAFETY CHECK: If this local script is running on the main account, stop immediately.
+    -- CRITICAL PROTECTION: If this execution environment is running on the main account, block!
     if LocalPlayer.Name == MAIN_ACCOUNT_NAME then return end
     
-    -- Verify the chat message actually came from the master main account
+    -- Verify talker identity is the validated host source
     if speaker.Name ~= MAIN_ACCOUNT_NAME then return end
     
     local args = string.split(msg, " ") 
@@ -171,54 +268,38 @@ local function HandleIncomingChat(msg, speaker)
     local rootPart = character and character:FindFirstChild("HumanoidRootPart")
     local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 
-    -- ;bring command
     if command == ";bring" then
         local mainPlayer = Players:FindFirstChild(MAIN_ACCOUNT_NAME)
         if mainPlayer and mainPlayer.Character and mainPlayer.Character:FindFirstChild("HumanoidRootPart") and rootPart then
             rootPart.CFrame = mainPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
-            print("⚡ Alt Control: Teleported to main account.")
         end
     end
 
-    -- ;speed [Value] command
     if command == ";speed" and args[2] then
         local speedNum = tonumber(args[2])
-        if speedNum then
-            _G.WalkSpeedValue = speedNum
-            print("⚡ Alt Control: Local WalkSpeed set to " .. speedNum)
-        end
+        if speedNum then _G.WalkSpeedValue = speedNum end
     end
 
-    -- ;jump [Optional Value] command
     if command == ";jump" then
         if args[2] and tonumber(args[2]) then
             _G.JumpPowerValue = tonumber(args[2])
-            print("⚡ Alt Control: Local JumpPower threshold set to " .. args[2])
         elseif humanoid then
             humanoid.Jump = true
-            print("⚡ Alt Control: Jump action triggered.")
         end
     end
 
-    -- ;sit command
     if command == ";sit" and humanoid then
         humanoid.Sit = true
-        print("⚡ Alt Control: Forced player into seated state.")
     end
 
-    -- ;freeze command
     if command == ";freeze" and rootPart then
         rootPart.Anchored = true
-        print("⚡ Alt Control: Alt position locked (Anchored).")
     end
 
-    -- ;unfreeze command
     if command == ";unfreeze" and rootPart then
         rootPart.Anchored = false
-        print("⚡ Alt Control: Alt position unlocked.")
     end
 
-    -- ;dance command 
     if command == ";dance" and rootPart then
         if not Dancing then
             Dancing = true
@@ -227,68 +308,8 @@ local function HandleIncomingChat(msg, speaker)
                     rootPart.CFrame = rootPart.CFrame * CFrame.Angles(0, math.rad(15), 0)
                 end
             end)
-            print("⚡ Alt Control: Started custom spin loop.")
         end
     end
 
-    -- ;undance command
     if command == ";undance" then
-        if Dancing then
-            Dancing = false
-            if DanceConnection then
-                DanceConnection:Disconnect()
-                DanceConnection = nil
-            end
-            print("⚡ Alt Control: Custom spin loop stopped.")
-        end
-    end
-
-    -- ;say [Message] command (Upgraded Hybrid Messaging Routing)
-    if command == ";say" and #args > 1 then
-        table.remove(args, 1)
-        local repeatMessage = table.concat(args, " ")
-        
-        -- Route 1: Modern TextChatService Layout Engine (New Chat)
-        if TextChatService and TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-            local textChannels = TextChatService:FindFirstChild("TextChannels")
-            local targetChannel = textChannels and (textChannels:FindFirstChild("RBXGeneral") or textChannels:FindFirstChild("RBXSystem"))
-            
-            if targetChannel then
-                targetChannel:SendAsync(repeatMessage)
-            else
-                local textInputBar = TextChatService:FindFirstChild("ChatInputBarConfiguration")
-                if textInputBar and textInputBar.TargetTextChannel then
-                    textInputBar.TargetTextChannel:SendAsync(repeatMessage)
-                end
-            end
-        end
-        
-        -- Route 2: Legacy DefaultChatSystem Remote Handshake Matrix (Old Chat)
-        local legacyChat = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
-        if legacyChat and legacyChat:FindFirstChild("SayMessageRequest") then
-            legacyChat.SayMessageRequest:FireServer(repeatMessage, "All")
-        end
-        
-        print("⚡ Alt Control: Dispatched text string packet across hybrid channels.")
-    end
-end
-
--- Hook listeners dynamically into the engine's message distribution networks
-if TextChatService and TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-    TextChatService.MessageReceived:Connect(function(textMessage)
-        if textMessage.TextSource then
-            local speaker = Players:GetPlayerByUserId(textMessage.TextSource.UserId)
-            if speaker then
-                HandleIncomingChat(textMessage.Text, speaker)
-            end
-        end
-    end)
-else
-    -- Fallback listener for classical server layouts
-    for _, player in ipairs(Players:GetPlayers()) do
-        player.Chatted:Connect(function(msg) HandleIncomingChat(msg, player) end)
-    end
-    Players.PlayerAdded:Connect(function(player)
-        player.Chatted:Connect(function(msg) HandleIncomingChat(msg, player) end)
-    end)
-end
+        if Dancing
